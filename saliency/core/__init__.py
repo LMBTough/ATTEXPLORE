@@ -1,9 +1,6 @@
 from .agi import pgd_step,pgd_ssa_step
 from .big import BIG,FGSM,SSA
-from .mfaba import MFABA,FGSMGrad,MFABACOS,MFABANORM,FGSMGradSingle,FGSMGradSSA,PGDGrad,DIFGSMGrad,TIFGSMGrad,MIFGSMGrad,SINIFGSMGrad,FGSMGradNAA
-from .mfaba import DIFGSMGrad as DIFGSMGrad_ori
-from .mfaba import TIFGSMGrad as TIFGSMGrad_ori
-from .mfaba import MIFGSMGrad as MIFGSMGrad_ori
+from .ampe import AMPE,FGSMGradSSA
 from .ig import IntegratedGradient
 from .sm import SaliencyGradient
 from .sg import SmoothGradient

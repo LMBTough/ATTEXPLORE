@@ -1,6 +1,4 @@
-from saliency.core import pgd_step,pgd_ssa_step,DL, BIG,SSA, FGSM, MFABA, MFABACOS, MFABANORM, FGSMGradSingle, FGSMGrad, IntegratedGradient, SaliencyGradient, SmoothGradient,FGSMGradSSA
-from saliency.core import PGDGrad,DIFGSMGrad,TIFGSMGrad,MIFGSMGrad,SINIFGSMGrad,FGSMGradNAA
-from saliency.core import DIFGSMGrad_ori,TIFGSMGrad_ori,MIFGSMGrad_ori
+from saliency.core import pgd_step,pgd_ssa_step,DL, BIG,SSA, FGSM, AMPE, IntegratedGradient, SaliencyGradient, SmoothGradient,FGSMGradSSA
 from saliency.core import FastIG, GuidedIG,SaliencyMap,AttributionPriorExplainer
 import torch
 import numpy as np
@@ -83,23 +81,10 @@ def big_ssa(model, data, target, data_min=0, data_max=1, epsilons=[16], class_nu
     return attribution_map
 
 
-def mfaba_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    epsilon = epsilon / 255
-    mfaba = MFABA(model)
-    attack = FGSMGrad(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
 
-def mfaba_ssa_smooth(model, data, target, data_min=0, data_max=1, epsilon=16,N=20,num_steps=10, use_sign=True, use_softmax=True):
+def ampe(model, data, target, data_min=0, data_max=1, epsilon=16,N=20,num_steps=10, use_sign=True, use_softmax=True):
     assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
+    mfaba = AMPE(model)
     epsilon = epsilon / 255
     attack = FGSMGradSSA(
         epsilon=epsilon, data_min=data_min, data_max=data_max,N=N)
@@ -109,177 +94,6 @@ def mfaba_ssa_smooth(model, data, target, data_min=0, data_max=1, epsilon=16,N=2
     for i in range(len(hats)):
         attribution_map.append(mfaba(hats[i], grads[i]))
     attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-
-def mfaba_pgd_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
-    epsilon = epsilon / 255
-    attack = PGDGrad(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-def mfaba_difgsm_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
-    epsilon = epsilon / 255
-    attack = DIFGSMGrad(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-def mfaba_tifgsm_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
-    epsilon = epsilon / 255
-    attack = TIFGSMGrad(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-
-def mfaba_mifgsm_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
-    epsilon = epsilon / 255
-    attack = MIFGSMGrad(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-
-
-
-def mfaba_difgsmori_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
-    epsilon = epsilon / 255
-    attack = DIFGSMGrad_ori(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-def mfaba_tifgsmori_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
-    epsilon = epsilon / 255
-    attack = TIFGSMGrad_ori(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-
-def mfaba_mifgsmori_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
-    epsilon = epsilon / 255
-    attack = MIFGSMGrad_ori(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-
-def mfaba_sinifgsm_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
-    epsilon = epsilon / 255
-    attack = SINIFGSMGrad(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-def mfaba_naa_smooth(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=True, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    mfaba = MFABA(model)
-    epsilon = epsilon / 255
-    attack = FGSMGradNAA(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-def mfaba_sharp(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=False, use_softmax=True):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    epsilon = epsilon / 255
-    mfaba = MFABA(model)
-    attack = FGSMGrad(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    _, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = list()
-    for i in range(len(hats)):
-        attribution_map.append(mfaba(hats[i], grads[i]))
-    attribution_map = np.concatenate(attribution_map, axis=0)
-    return attribution_map
-
-
-def mfaba_cos(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=False, use_softmax=False):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    epsilon = epsilon / 255
-    mfaba_cos = MFABACOS(model)
-    attack = FGSMGradSingle(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    dt, _, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = mfaba_cos(data, dt, hats, grads)
-    return attribution_map
-
-
-def mfaba_norm(model, data, target, data_min=0, data_max=1, epsilon=16, use_sign=False, use_softmax=False):
-    assert len(data.shape) == 4, "Input data must be 4D tensor"
-    epsilon = epsilon / 255
-    mfaba_norm = MFABANORM(model)
-    attack = FGSMGradSingle(
-        epsilon=epsilon, data_min=data_min, data_max=data_max)
-    dt, success, _, hats, grads = attack(
-        model, data, target, use_sign=use_sign, use_softmax=use_softmax)
-    attribution_map = mfaba_norm(data, dt, hats, grads)
     return attribution_map
 
 
