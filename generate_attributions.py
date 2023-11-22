@@ -3,7 +3,7 @@ import torch.nn as nn
 from torchvision import transforms
 from torchvision.models import resnet50, inception_v3, googlenet, vgg16, mobilenet_v2
 from saliency.saliency_zoo import big, big_ssa, agi, ig, sm, sg, deeplift,ampe
-from saliency.saliency_zoo import fast_ig, guided_ig, eg, saliencymap
+from saliency.saliency_zoo import fast_ig, guided_ig, eg, saliencymap,gradcam
 from tqdm import tqdm
 import torch
 import numpy as np
@@ -60,6 +60,9 @@ if __name__ == "__main__":
             target = target_batch[i:i+batch_size].to(device)
             if args.attr_method == "eg":
                 attributions.append(attr_method(
+                    model, dataloader, img, target))
+            elif args.attr_method == "gradcam":
+                attributions.append(attr_method(args.model,
                     model, dataloader, img, target))
             else:
                 attributions.append(attr_method(model, img, target))
