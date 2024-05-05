@@ -3,7 +3,7 @@
 # AttEXplore: Attribution for Explanation with model parameters eXploration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Venue:ICRL 2023](https://img.shields.io/badge/Venue-ICRL%202024-007CFF)](https://openreview.net/pdf?id=FsVxd9CIlb)
+[![Venue:ICLR 2023](https://img.shields.io/badge/Venue-ICLR%202024-007CFF)](https://openreview.net/pdf?id=FsVxd9CIlb)
 
 </div>
 
